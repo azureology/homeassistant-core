@@ -56,7 +56,7 @@ ZHONG_HONG_MODE_COOL = "cool"
 ZHONG_HONG_MODE_HEAT = "heat"
 ZHONG_HONG_MODE_DRY = "dry"
 ZHONG_HONG_MODE_FAN_ONLY = "fan_only"
-SCAN_INTERVAL = timedelta(seconds=30)
+SCAN_INTERVAL = timedelta(seconds=10)
 
 
 MODE_TO_STATE = {
@@ -129,7 +129,6 @@ class ZhongHongClimate(ClimateEntity):
         HVACMode.OFF,
     ]
     _attr_should_poll = True
-    _attr_force_update = True
     _attr_supported_features = (
         ClimateEntityFeature.TARGET_TEMPERATURE
         | ClimateEntityFeature.FAN_MODE
@@ -172,7 +171,7 @@ class ZhongHongClimate(ClimateEntity):
 
     async def async_update(self):
         """Update device status"""
-        # update on 1-1 only, others will be done be callback
+        # update on 1-1 only, others will be done by callback
         if self.name == "zhong_hong_hvac_1_1":
             self._device.gw.start_listen()
             self._device.gw.query_all_status()
