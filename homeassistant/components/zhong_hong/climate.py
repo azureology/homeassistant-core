@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 from typing import Any
-
+from datetime import timedelta
 import voluptuous as vol
 from zhong_hong_hvac.hub import ZhongHongGateway
 from zhong_hong_hvac.hvac import HVAC as ZhongHongHVAC
@@ -56,6 +56,7 @@ ZHONG_HONG_MODE_COOL = "cool"
 ZHONG_HONG_MODE_HEAT = "heat"
 ZHONG_HONG_MODE_DRY = "dry"
 ZHONG_HONG_MODE_FAN_ONLY = "fan_only"
+SCAN_INTERVAL = timedelta(seconds=30)
 
 
 MODE_TO_STATE = {
@@ -127,7 +128,8 @@ class ZhongHongClimate(ClimateEntity):
         HVACMode.FAN_ONLY,
         HVACMode.OFF,
     ]
-    _attr_should_poll = False
+    _attr_should_poll = True
+    _attr_force_update = True
     _attr_supported_features = (
         ClimateEntityFeature.TARGET_TEMPERATURE
         | ClimateEntityFeature.FAN_MODE
@@ -167,6 +169,14 @@ class ZhongHongClimate(ClimateEntity):
         if self._device.target_temperature:
             self._target_temperature = self._device.target_temperature
         self.schedule_update_ha_state()
+
+    async def async_update(self):
+        """Update device status"""
+        # update on 1-1 only, others will be done be callback
+        if self.name == "zhong_hong_hvac_1_1":
+            self._device.gw.start_listen()
+            self._device.gw.query_all_status()
+            self._device.gw.stop_listen()
 
     @property
     def name(self):
