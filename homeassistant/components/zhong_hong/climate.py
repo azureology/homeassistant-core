@@ -56,7 +56,7 @@ ZHONG_HONG_MODE_COOL = "cool"
 ZHONG_HONG_MODE_HEAT = "heat"
 ZHONG_HONG_MODE_DRY = "dry"
 ZHONG_HONG_MODE_FAN_ONLY = "fan_only"
-SCAN_INTERVAL = timedelta(seconds=10)
+SCAN_INTERVAL = timedelta(seconds=30)
 
 
 MODE_TO_STATE = {
@@ -171,10 +171,22 @@ class ZhongHongClimate(ClimateEntity):
 
     async def async_update(self):
         """Update device status"""
-        # update on 1-1 only, others will be done by callback
-        if self.name == "zhong_hong_hvac_1_1":
+        if self.name != "zhong_hong_hvac_1_1":
+            return
+        try:
+            # Use async executor for socket operations
+            await self.hass.async_add_executor_job(
+                self._update_device_status
+            )
+        except Exception as ex:
+            _LOGGER.error("Error updating device status: %s", ex)
+
+    def _update_device_status(self):
+        """Thread-safe device status update."""
+        try:
             self._device.gw.start_listen()
             self._device.gw.query_all_status()
+        finally:
             self._device.gw.stop_listen()
 
     @property
