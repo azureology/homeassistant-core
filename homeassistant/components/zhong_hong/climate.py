@@ -56,7 +56,7 @@ ZHONG_HONG_MODE_COOL = "cool"
 ZHONG_HONG_MODE_HEAT = "heat"
 ZHONG_HONG_MODE_DRY = "dry"
 ZHONG_HONG_MODE_FAN_ONLY = "fan_only"
-SCAN_INTERVAL = timedelta(seconds=30)
+SCAN_INTERVAL = timedelta(seconds=10)
 
 
 MODE_TO_STATE = {
@@ -183,11 +183,7 @@ class ZhongHongClimate(ClimateEntity):
 
     def _update_device_status(self):
         """Thread-safe device status update."""
-        try:
-            self._device.gw.start_listen()
-            self._device.gw.query_all_status()
-        finally:
-            self._device.gw.stop_listen()
+        self._device.gw.query_all_status()
 
     @property
     def name(self):
