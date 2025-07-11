@@ -56,7 +56,7 @@ ZHONG_HONG_MODE_COOL = "cool"
 ZHONG_HONG_MODE_HEAT = "heat"
 ZHONG_HONG_MODE_DRY = "dry"
 ZHONG_HONG_MODE_FAN_ONLY = "fan_only"
-SCAN_INTERVAL = timedelta(seconds=10)
+SCAN_INTERVAL = timedelta(seconds=15)
 
 
 MODE_TO_STATE = {
